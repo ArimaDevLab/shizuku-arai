@@ -65,6 +65,7 @@ input[type=range]{flex:1 1 140px;accent-color:var(--water);height:32px}
   <div class="row">
     <span class="note" style="flex:none">水の音</span>
     <div class="meter"><i id="lvl"></i></div>
+    <span class="note" id="judge" style="flex:none;min-width:7em">-</span>
     <button class="ghost" id="calBtn" disabled>静かな音を測り直す</button>
   </div>
   <label>感度 <input type="range" id="sens" min="3" max="20" value="9"> <span id="sensV"></span></label>
@@ -220,21 +221,29 @@ async function startMic(){
   const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
   const ac=new (window.AudioContext||window.webkitAudioContext)();await ac.resume();
   an=ac.createAnalyser();an.fftSize=2048;an.smoothingTimeConstant=.6;ac.createMediaStreamSource(stream).connect(an);
-  buf=new Float32Array(an.frequencyBinCount);const hz=ac.sampleRate/an.fftSize;bandLo=Math.round(1500/hz);bandHi=Math.round(8000/hz);
+  buf=new Float32Array(an.frequencyBinCount);const hz=ac.sampleRate/an.fftSize;bandLo=Math.round(3500/hz);bandHi=Math.min(an.frequencyBinCount,Math.round(11000/hz));midLo=Math.round(250/hz);midHi=Math.round(2000/hz);
   micOn=true;recal();$('micBtn').classList.add('on');$('micBtn').textContent='マイク検知中';$('calBtn').disabled=false;
  }catch(e){msg('この画面ではマイクが使えませんでした。下の「手動」ボタンか、ゲーム画面のタップで遊べます。');}
 }
-function recal(){base=null;calib=[];msg('静かな音を測っています…（2秒ほど水を止めてね）')}
+let midLo,midHi,midBase=null,calibM=[],hist=[];
+function recal(){base=null;calib=[];calibM=[];hist=[];msg('静かな音を測っています…（2秒ほど水を止めてね）')}
+function bandDb(lo,hi){let sum=0,lg=0,n=0;for(let i=lo;i<hi;i++){const p=Math.pow(10,buf[i]/10)+1e-12;sum+=p;lg+=Math.log(p);n++}return[10*Math.log10(sum/n),Math.exp(lg/n)/(sum/n)]}
+const med=a=>{const s=[...a].sort((x,y)=>x-y);return s[Math.floor(s.length/2)]};
 function micTick(dt){
  an.getFloatFrequencyData(buf);
- let sum=0,lg=0,n=0;for(let i=bandLo;i<bandHi;i++){const p=Math.pow(10,buf[i]/10)+1e-12;sum+=p;lg+=Math.log(p);n++}
- const db=10*Math.log10(sum/n),flat=Math.exp(lg/n)/(sum/n);
- if(base===null){calib.push(db);if(calib.length>90){calib.sort((a,b)=>a-b);base=calib[Math.floor(calib.length/2)];msg('準備OK！ 水を出してみてね')}return}
- const over=db-base,thr=+$('sens').max+3-$('sens').value;
+ // 水の音：高い音域まで「シャー」と平らに広がり、音量が一定
+ // 人の声：低〜中音域が強く、音の高さがあり、強弱が激しい
+ const [db,flat]=bandDb(bandLo,bandHi),[mid]=bandDb(midLo,midHi);
+ if(base===null){calib.push(db);calibM.push(mid);if(calib.length>90){base=med(calib);midBase=med(calibM);msg('準備OK！ 水を出してみてね')}return}
+ const over=db-base,midOver=mid-midBase,thr=+$('sens').max+3-$('sens').value;
+ hist.push(db);if(hist.length>45)hist.shift();
+ const m=hist.reduce((a,b)=>a+b,0)/hist.length,sd=Math.sqrt(hist.reduce((a,b)=>a+(b-m)**2,0)/hist.length);
  $('lvl').style.width=Math.max(0,Math.min(100,over/(thr*2)*100))+'%';
- const hit=over>thr&&flat>0.18;
- if(hit){onT+=dt;offT=0}else{offT+=dt;onT=Math.max(0,onT-dt)}
- if(!micState&&onT>0.6)micState=true;
+ const loud=over>thr,steady=sd<4.5,noisy=flat>0.25,notVoice=midOver-over<8;
+ const hit=loud&&steady&&noisy&&notVoice;
+ $('judge').textContent=!loud?'静か':hit?'水の音':'水じゃなさそう';
+ if(hit){onT+=dt;offT=0}else{offT+=dt;onT=Math.max(0,onT-dt*1.5)}
+ if(!micState&&onT>1.0)micState=true;
  if(micState&&offT>1.5)micState=false;
 }
 function toggleManual(){manual=!manual;$('manBtn').classList.toggle('on',manual);$('manBtn').textContent=manual?'手動：水を止めた':'手動：水を出してる'}
