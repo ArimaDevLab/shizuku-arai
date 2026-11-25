@@ -3,218 +3,246 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>しずくの洗い流し大冒険</title>
+<title>しずくのおうち時間</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
 <style>
-/* VOICE: 子ども向け絵本のように明るく、やさしい
-   IDEA: 台所の窓から見える小さな世界を、しずくが洗い流していく
-   PICTURE: 大きなゲーム画面。汚れた村→燃える森→枯れた畑→ヘドロのボス
-   COLOUR and TYPE: 水色の空、若草、オレンジのアクセント / M PLUS Rounded 1c
-   LAYOUT: 小さなタイトル、ゲーム画面、進行状況、操作ボタンの1カラム */
-:root{color-scheme:light dark;--bg:light-dark(#e6f5fa,#0b1d29);--ink:light-dark(#123040,#e4f3f8);--card:light-dark(#ffffff,#12303f);--sub:light-dark(#4d6b7a,#9dc0cf);--water:#1f9fd6;--acc:#ff8a3d;--line:light-dark(#cfe6ee,#20475a)}
+/* VOICE: やさしく、ほっとする。洗い物を「自分をいたわる時間」に
+   IDEA: 洗い物をするたびに、小さなおうちとお庭が少しずつ整っていく暮らし絵本
+   PICTURE: 窓辺・ハーブ・花だん・バラのアーチ。最後にねこがお茶をしにやってくる
+   COLOUR and TYPE: セージグリーンと白、ローズピンクのアクセント / Zen Maru Gothic
+   LAYOUT: 小さなタイトル、絵本の画面、今日のがんばり、操作の1カラム */
+:root{color-scheme:light dark;--bg:light-dark(#f3f7f1,#141d18);--ink:light-dark(#2f3d34,#e6efe8);--card:light-dark(#ffffff,#1d2a23);--sub:light-dark(#6a7d70,#a9bfb0);--sage:#7fae8e;--rose:#e2829a;--line:light-dark(#dde9de,#2c3f33)}
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "M PLUS Rounded 1c",system-ui,sans-serif;overflow-x:clip}
-main{max-width:760px;margin:0 auto;padding:16px max(3vw,12px) 40px}
-h1{font-size:22px;line-height:1.2;margin:4px 0 10px;font-weight:800}
-.screen{position:relative;border-radius:18px;overflow:hidden;background:#bfe3f2;aspect-ratio:4/3;box-shadow:0 6px 24px rgba(0,60,90,.18)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Zen Maru Gothic",system-ui,sans-serif;overflow-x:clip}
+main{max-width:760px;margin:0 auto;padding:18px max(3vw,12px) 44px}
+h1{font-size:23px;line-height:1.2;margin:2px 0 2px;font-weight:700}
+.lead{margin:0 0 12px;color:var(--sub);font-size:14px}
+.screen{position:relative;border-radius:22px;overflow:hidden;background:#e7f1e6;aspect-ratio:4/3;box-shadow:0 8px 28px rgba(60,90,70,.16)}
 .screen canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:manipulation}
-.map{display:flex;gap:6px;margin:12px 0 6px}
-.map span{flex:1;text-align:center;font-size:13px;padding:6px 2px;border-radius:10px;background:var(--card);border:1px solid var(--line);color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.map span.now{border-color:var(--water);color:var(--ink);font-weight:800}
-.map span.done{background:#d9f5df;color:#226b34;border-color:#a8deb4}
-:root[data-theme=dark] .map span.done{background:#173d26;color:#a6e6b6;border-color:#2e6b44}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .map span.done{background:#173d26;color:#a6e6b6;border-color:#2e6b44}}
-.bar{height:14px;background:var(--card);border:1px solid var(--line);border-radius:99px;overflow:hidden}
-.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#57c6f0,var(--water));transition:width .3s}
-.stats{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 16px;font-size:14px;color:var(--sub);margin:6px 0 14px}
-.stats b{color:var(--ink);font-variant-numeric:tabular-nums}
-.ctrl{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;display:grid;gap:12px}
+.rooms{display:flex;gap:6px;margin:14px 0 8px}
+.rooms span{flex:1;text-align:center;font-size:13px;padding:7px 2px;border-radius:99px;background:var(--card);border:1px solid var(--line);color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rooms span.now{border-color:var(--rose);color:var(--ink);font-weight:700}
+.rooms span.done{background:var(--sage);color:#fff;border-color:var(--sage)}
+.bar{height:12px;background:var(--card);border:1px solid var(--line);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#a9d3b5,var(--sage));transition:width .4s}
+.today{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0}
+.today div{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px 12px}
+.today small{display:block;font-size:13px;color:var(--sub)}
+.today b{font-size:clamp(18px,5vw,24px);font-variant-numeric:tabular-nums;white-space:nowrap}
+.ctrl{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:14px;display:grid;gap:12px}
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-button{font:inherit;font-weight:800;min-height:48px;padding:0 18px;border-radius:14px;border:0;cursor:pointer;background:var(--water);color:#fff}
+button{font:inherit;font-weight:700;min-height:48px;padding:0 18px;border-radius:99px;border:0;cursor:pointer;background:var(--sage);color:#fff}
 button.ghost{background:transparent;color:var(--ink);border:2px solid var(--line)}
-button.on{background:var(--acc)}
-button:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
-.big{flex:1 1 200px;min-height:60px;font-size:18px}
+button.on{background:var(--rose);color:#fff;border-color:var(--rose)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--rose);outline-offset:2px}
+.big{flex:1 1 200px;min-height:60px;font-size:17px}
 label{font-size:14px;color:var(--sub);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-input[type=range]{flex:1 1 140px;accent-color:var(--water);height:32px}
+input[type=range]{flex:1 1 140px;accent-color:var(--sage);height:32px}
 .meter{flex:1 1 120px;height:10px;border-radius:99px;background:var(--line);overflow:hidden}
-.meter i{display:block;height:100%;width:0;background:var(--water)}
+.meter i{display:block;height:100%;width:0;background:var(--sage)}
 .note{font-size:13px;color:var(--sub);margin:0}
 #msg{min-height:1.4em;font-size:14px;margin:0}
+details summary{cursor:pointer;font-size:14px;color:var(--sub);min-height:32px}
 @media(prefers-reduced-motion:reduce){.bar i{transition:none}}
 </style>
 </head>
 <body>
 <main>
-<h1>しずくの洗い流し大冒険</h1>
-<div class="screen"><canvas id="cv" aria-label="ゲーム画面"></canvas></div>
-<div class="map" id="map"></div>
-<div class="bar" aria-label="ステージの進み具合"><i id="prog"></i></div>
-<div class="stats">
-  <span>ステージ <b id="sname">-</b></span>
-  <span>今日の洗い物 <b id="today">0分0秒</b></span>
-  <span>周回 <b id="laps">0</b></span>
+<h1>しずくのおうち時間</h1>
+<p class="lead">洗い物をしている間だけ、しずくがおうちとお庭を整えてくれます。</p>
+<div class="screen"><canvas id="cv" aria-label="おうちの様子"></canvas></div>
+<div class="rooms" id="rooms"></div>
+<div class="bar" aria-label="いまの場所の進み具合"><i id="prog"></i></div>
+<div class="today">
+  <div><small>今日の洗い物</small><b id="today">0分</b></div>
+  <div><small>続けた日数</small><b id="streak">0日</b></div>
+  <div><small>集めた花束</small><b id="laps">0束</b></div>
 </div>
 <div class="ctrl">
   <div class="row">
-    <button class="big" id="micBtn">マイクで水の音を検知</button>
-    <button class="big ghost" id="manBtn">手動：水を出してる</button>
+    <button class="big" id="micBtn">水の音で自動スタート</button>
+    <button class="big ghost" id="manBtn">手動で始める</button>
   </div>
-  <div class="row">
-    <span class="note" style="flex:none">水の音</span>
-    <div class="meter"><i id="lvl"></i></div>
-    <span class="note" id="judge" style="flex:none;min-width:7em">-</span>
-    <button class="ghost" id="calBtn" disabled>静かな音を測り直す</button>
-  </div>
-  <label>感度 <input type="range" id="sens" min="3" max="20" value="9"> <span id="sensV"></span></label>
-  <label><input type="checkbox" id="fast" style="width:22px;height:22px"> お試し速度（5倍速）</label>
   <p id="msg" aria-live="polite"></p>
-  <p class="note">マイクの音はこの端末の中だけで判定し、録音も送信もしません。手が濡れていても、画面をタップすれば手動でオン・オフできます。</p>
+  <details>
+    <summary>音の聞き取りの調整</summary>
+    <div style="display:grid;gap:12px;padding-top:8px">
+      <div class="row">
+        <span class="note" style="flex:none">水の音</span>
+        <div class="meter"><i id="lvl"></i></div>
+        <span class="note" id="judge" style="flex:none;min-width:7em">-</span>
+      </div>
+      <button class="ghost" id="calBtn" disabled>静かな音を測り直す</button>
+      <label>感度 <input type="range" id="sens" min="3" max="20" value="9"> <span id="sensV"></span></label>
+      <label><input type="checkbox" id="fast" style="width:22px;height:22px"> お試し速度（5倍速）</label>
+    </div>
+  </details>
+  <p class="note">音はこのスマホの中で聞き分けるだけで、録音も送信もしません。手が濡れていても、絵のところをタップすれば始める・止めるができます。</p>
 </div>
 </main>
 <script>
 {
 const $=id=>document.getElementById(id);
 const cv=$('cv'),ctx=cv.getContext('2d');
+const F='"Zen Maru Gothic",sans-serif';
 const STAGES=[
- {name:'泥だらけの村',kind:'mud',sky:['#9fd6ee','#e3f5fb'],ground:'#8fc46e',items:['house','house','house','house'],sec:120},
- {name:'燃える森',kind:'fire',sky:['#f6b27a','#fde3c4'],ground:'#7fb45c',items:['tree','tree','tree','tree'],sec:120},
- {name:'枯れた畑',kind:'dry',sky:['#a8dcf0','#f0f9e8'],ground:'#a8c46a',items:['field','field','field','field'],sec:120},
- {name:'ヘドロ沼のボス',kind:'boss',sky:['#7d93b8','#c9d6e6'],ground:'#6e9a6a',items:['boss'],sec:150}
+ {name:'くもった窓辺',bg:'wall',items:['win','win','win','win'],sec:120,done:'窓辺がぴかぴかになりました'},
+ {name:'しおれたハーブ',bg:'wall',items:['herb','herb','herb','herb'],sec:120,done:'ハーブがいい香り'},
+ {name:'お庭の花だん',bg:'sky',items:['field','field','field','field'],sec:120,done:'花だんが満開です'},
+ {name:'バラのアーチ',bg:'sky',items:['arch'],sec:150,done:'ねこがお茶をしにきました'}
 ];
+const PRAISE=['おつかれさま！','今日もえらい！','ていねいな暮らし、できてます','きれいになると気持ちいいね','ひと息ついてね'];
 const XS=[150,212,274,336];
-let S={stage:0,hp:null,laps:0,day:'',todaySec:0};
-try{const s=JSON.parse(localStorage.getItem('shizuku-save')||'null');if(s&&typeof s.stage==='number')S=Object.assign(S,s)}catch(e){}
-const dkey=()=>new Date().toLocaleDateString('ja-JP');
+let S={stage:0,hp:null,laps:0,day:'',todaySec:0,streak:0,lastDay:''};
+try{const s=JSON.parse(localStorage.getItem('shizuku-home')||'null');if(s&&typeof s.stage==='number')S=Object.assign(S,s)}catch(e){}
+const dkey=d=>(d||new Date()).toLocaleDateString('ja-JP');
 if(S.day!==dkey()){S.day=dkey();S.todaySec=0}
 function resetHp(){S.hp=STAGES[S.stage].items.map(()=>1)}
 if(!S.hp||S.hp.length!==STAGES[S.stage].items.length)resetHp();
-const save=()=>{try{localStorage.setItem('shizuku-save',JSON.stringify(S))}catch(e){}};
+const save=()=>{try{localStorage.setItem('shizuku-home',JSON.stringify(S))}catch(e){}};
+function markDay(){const k=dkey();if(S.lastDay===k)return;const y=new Date();y.setDate(y.getDate()-1);S.streak=S.lastDay===dkey(y)?S.streak+1:1;S.lastDay=k;stats()}
 
-let W=400,H=300,dpr=1;
-function size(){const r=cv.getBoundingClientRect();dpr=Math.min(devicePixelRatio||1,2);cv.width=r.width*dpr;cv.height=r.height*dpr}
+let W=400,H=300;
+function size(){const r=cv.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);cv.width=r.width*d;cv.height=r.height*d}
 const ro=new ResizeObserver(size);ro.observe(cv);
 
-// ---- water state ----
-let water=false,manual=false,micOn=false,clearT=0,parts=[],splash=[],t=0;
+let water=false,manual=false,micOn=false,clearT=0,parts=[],splash=[],t=0,session=0,toast='',toastT=0,wasWater=false;
 const GY=225;
-function target(){const i=S.hp.findIndex(h=>h>0);return i}
-function tpos(i){const st=STAGES[S.stage];if(st.kind==='boss')return{x:280,y:175};return{x:XS[i],y:st.kind==='dry'?GY+2:GY-38}}
+const target=()=>S.hp.findIndex(h=>h>0);
+function tpos(i){const k=STAGES[S.stage].items[i];if(k==='arch')return{x:270,y:GY-90};if(k==='win')return{x:XS[i],y:GY-72};if(k==='herb')return{x:XS[i],y:GY-34};return{x:XS[i],y:GY}}
 
-// ---- drawing helpers ----
 function circ(x,y,r,c){ctx.fillStyle=c;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill()}
-function blob(x,y,r,c,seed){ctx.fillStyle=c;ctx.beginPath();for(let a=0;a<=12;a++){const an=a/12*Math.PI*2,rr=r*(0.8+0.2*Math.sin(an*3+seed));ctx.lineTo(x+Math.cos(an)*rr,y+Math.sin(an)*rr*.8)}ctx.fill()}
-function house(x,h){
- ctx.fillStyle='rgba(0,0,0,.12)';ctx.fillRect(x-22,GY-2,48,5);
- ctx.fillStyle='#fff6e4';ctx.fillRect(x-20,GY-40,40,40);
- ctx.fillStyle='#e9dcc2';ctx.fillRect(x+8,GY-40,12,40);
- ctx.fillStyle=['#e8574a','#3e8ed0','#f0a530','#5bb36a'][XS.indexOf(x)%4];
- ctx.beginPath();ctx.moveTo(x-26,GY-38);ctx.lineTo(x,GY-62);ctx.lineTo(x+26,GY-38);ctx.fill();
- ctx.fillStyle='#8a5a3a';ctx.fillRect(x-6,GY-18,12,18);
- ctx.fillStyle='#9fd6ee';ctx.fillRect(x-16,GY-32,9,9);ctx.fillRect(x+7,GY-32,9,9);
- if(h>0){ctx.globalAlpha=Math.min(1,h*1.3);
-  for(let k=0;k<5;k++)blob(x-14+k*7,GY-48+((k*17)%30),9+((k*5)%6),k%2?'#7a5232':'#8f6440',k);
-  ctx.globalAlpha=1}
+function rr(x,y,w,h,r,c){ctx.fillStyle=c;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill()}
+function smudge(x,y,r,a,seed){ctx.globalAlpha=a;ctx.fillStyle='#9a8f80';ctx.beginPath();for(let k=0;k<=12;k++){const an=k/12*Math.PI*2,q=r*(0.75+0.25*Math.sin(an*3+seed));ctx.lineTo(x+Math.cos(an)*q,y+Math.sin(an)*q*.8)}ctx.fill();ctx.globalAlpha=1}
+function flowerAt(x,y,r,c){for(let a=0;a<5;a++)circ(x+Math.cos(a*1.26+.3)*r*.75,y+Math.sin(a*1.26+.3)*r*.75,r*.55,c);circ(x,y,r*.38,'#fff3c4')}
+
+function win(x,h){
+ const y=GY-100;rr(x-25,y,50,58,6,'#ffffff');
+ const g=ctx.createLinearGradient(0,y,0,y+52);g.addColorStop(0,'#a7d8ef');g.addColorStop(1,'#e3f4f9');
+ rr(x-21,y+4,19,24,3,g);rr(x+2,y+4,19,24,3,g);rr(x-21,y+31,19,23,3,g);rr(x+2,y+31,19,23,3,g);
+ ctx.fillStyle='rgba(255,255,255,.7)';ctx.fillRect(x-17,y+8,3,12);ctx.fillRect(x+6,y+8,3,12);
+ rr(x-30,y+58,60,6,3,'#e8ddd0');
+ ctx.fillStyle='#d9825b';ctx.beginPath();ctx.moveTo(x-9,y+44);ctx.lineTo(x+9,y+44);ctx.lineTo(x+7,y+58);ctx.lineTo(x-7,y+58);ctx.fill();
+ const c=['#e2829a','#f2b84b','#9b8ce0','#e2829a'][XS.indexOf(x)];
+ circ(x-4,y+40,5,'#6fa57f');circ(x+4,y+38,5,'#7fb58f');
+ if(h<.6)flowerAt(x,y+34,5*(1-h),c);
+ if(h>0)for(let k=0;k<6;k++)smudge(x-16+(k%3)*16,y+12+Math.floor(k/3)*26,10,Math.min(.85,h*1.1),k+x);
 }
-function tree(x,h){
- ctx.fillStyle='rgba(0,0,0,.12)';ctx.beginPath();ctx.ellipse(x,GY,22,4,0,0,7);ctx.fill();
- ctx.fillStyle='#7a4f2e';ctx.fillRect(x-4,GY-30,8,30);
- const g=h>0?`rgb(${Math.round(60+90*h)},${Math.round(150-60*h)},${Math.round(70-30*h)})`:'#3f9e4d';
- circ(x,GY-46,22,g);circ(x-10,GY-36,14,g);circ(x+11,GY-38,14,g);
- circ(x-6,GY-54,8,'rgba(255,255,255,.18)');
- if(h>0){const fs=0.4+h*0.8;for(let k=0;k<3;k++){const fx=x-12+k*12,fy=GY-56+(k%2)*10,fl=Math.sin(t*10+k*2)*3;
-  ctx.fillStyle='#ff6a1f';ctx.beginPath();ctx.moveTo(fx-9*fs,fy+8);ctx.quadraticCurveTo(fx-8*fs,fy-10*fs,fx+fl,fy-24*fs);ctx.quadraticCurveTo(fx+8*fs,fy-10*fs,fx+9*fs,fy+8);ctx.fill();
-  ctx.fillStyle='#ffd23a';ctx.beginPath();ctx.moveTo(fx-4*fs,fy+8);ctx.quadraticCurveTo(fx,fy-12*fs,fx+fl*.5,fy-12*fs);ctx.quadraticCurveTo(fx+4*fs,fy,fx+4*fs,fy+8);ctx.fill()}}
+function herb(x,h){
+ const g=1-h,i=XS.indexOf(x);
+ ctx.fillStyle='rgba(0,0,0,.1)';ctx.beginPath();ctx.ellipse(x,GY,20,4,0,0,7);ctx.fill();
+ ctx.fillStyle='#d9825b';ctx.beginPath();ctx.moveTo(x-17,GY-24);ctx.lineTo(x+17,GY-24);ctx.lineTo(x+13,GY);ctx.lineTo(x-13,GY);ctx.fill();
+ rr(x-19,GY-28,38,7,3,'#c56f4a');
+ const lc=[['#5f9e6e','#7fbf8b'],['#4f8f6a','#9ad0a6'],['#6f8f5a','#a3c48a'],['#5a9a8a','#8fcbbb']][i];
+ for(let k=0;k<5;k++){const sx=x-10+k*5,sh=8+g*26+(k%2)*6,droop=h*10;
+  ctx.strokeStyle=h>.5?'#9a8358':lc[0];ctx.lineWidth=2.2;ctx.beginPath();ctx.moveTo(sx,GY-28);ctx.quadraticCurveTo(sx,GY-28-sh*.6,sx+droop*(k%2?1:-1),GY-28-sh+droop);ctx.stroke();
+  if(g>.15){ctx.fillStyle=lc[k%2];ctx.beginPath();ctx.ellipse(sx,GY-28-sh,3+g*3,5+g*3,(k-2)*.3,0,7);ctx.fill()}}
+ const nm=['バジル','ミント','ローズマリー','タイム'][i];
+ if(g>.95){ctx.fillStyle='#fff';rr(x-24,GY-82,48,16,8,'rgba(255,255,255,.9)');ctx.fillStyle='#4f6a58';ctx.font='700 10px '+F;ctx.textAlign='center';ctx.fillText(nm,x,GY-70)}
 }
 function field(x,h){
- ctx.fillStyle=h>0?'#b08a5a':'#7a5a3a';ctx.beginPath();ctx.ellipse(x,GY+4,28,9,0,0,7);ctx.fill();
- if(h>0){ctx.strokeStyle='rgba(80,50,20,.6)';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x-18,GY+2);ctx.lineTo(x-6,GY+6);ctx.lineTo(x+4,GY+1);ctx.moveTo(x+6,GY+6);ctx.lineTo(x+18,GY+3);ctx.stroke()}
- const g=1-h;if(g>0.02){for(let k=0;k<3;k++){const fx=x-14+k*14,sh=26*g,sw=Math.sin(t*2+k)*2;
-  ctx.strokeStyle='#3f9e4d';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(fx,GY+3);ctx.quadraticCurveTo(fx+sw,GY-sh/2,fx+sw,GY-sh);ctx.stroke();
-  if(g>0.5){const pr=(g-0.5)*14;const pc=['#ff6f91','#ffd23a','#9b7bff'][k];for(let a=0;a<5;a++)circ(fx+sw+Math.cos(a*1.26)*pr*.7,GY-sh+Math.sin(a*1.26)*pr*.7,pr*.5,pc);circ(fx+sw,GY-sh,pr*.35,'#fff4c2')}}}
+ ctx.fillStyle=h>0?'#b8986c':'#7d5d40';ctx.beginPath();ctx.ellipse(x,GY+6,28,9,0,0,7);ctx.fill();
+ if(h>.3){ctx.strokeStyle='rgba(90,60,30,.5)';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(x-18,GY+4);ctx.lineTo(x-6,GY+8);ctx.lineTo(x+4,GY+3);ctx.moveTo(x+6,GY+8);ctx.lineTo(x+18,GY+5);ctx.stroke()}
+ const g=1-h;if(g>.02)for(let k=0;k<3;k++){const fx=x-14+k*14,sh=28*g,sw=Math.sin(t*2+k)*2;
+  ctx.strokeStyle='#5f9e6e';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(fx,GY+5);ctx.quadraticCurveTo(fx+sw,GY-sh/2,fx+sw,GY-sh);ctx.stroke();
+  if(g>.5)flowerAt(fx+sw,GY-sh,(g-.5)*14,['#e2829a','#f2b84b','#9b8ce0'][(k+XS.indexOf(x))%3])}
 }
-function boss(h){
- const x=280,r=18+52*h,y=GY-r*.75,wob=Math.sin(t*3)*3;
- ctx.fillStyle='rgba(0,0,0,.15)';ctx.beginPath();ctx.ellipse(x,GY,r+6,6,0,0,7);ctx.fill();
- if(h<=0){ctx.fillStyle='#ffe6f0';ctx.font='800 16px "M PLUS Rounded 1c",sans-serif';ctx.textAlign='center';ctx.fillText('ありがとう！',x,GY-50);circ(x,GY-18,16,'#9be3c2');circ(x-5,GY-21,2.5,'#123040');circ(x+5,GY-21,2.5,'#123040');return}
- ctx.fillStyle='#6b4f8f';ctx.beginPath();ctx.moveTo(x-r-wob,GY);ctx.quadraticCurveTo(x-r,y-r*.8,x,y-r*.6+wob);ctx.quadraticCurveTo(x+r,y-r*.8,x+r+wob,GY);ctx.fill();
- circ(x-r*.35,y-r*.3,r*.22,'rgba(255,255,255,.15)');
- circ(x-r*.3,y,r*.14,'#fff');circ(x+r*.3,y,r*.14,'#fff');circ(x-r*.27,y+2,r*.07,'#222');circ(x+r*.33,y+2,r*.07,'#222');
- ctx.strokeStyle='#2e1f40';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y+r*.35,r*.2,3.4,6);ctx.stroke();
- ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(x-40,52,80,8);ctx.fillStyle='#e8574a';ctx.fillRect(x-40,52,80*h,8);
+function cat(x,y){
+ circ(x,y-14,14,'#f1f1ef');circ(x,y-32,10,'#f1f1ef');
+ ctx.fillStyle='#f1f1ef';ctx.beginPath();ctx.moveTo(x-9,y-38);ctx.lineTo(x-7,y-48);ctx.lineTo(x-2,y-40);ctx.moveTo(x+9,y-38);ctx.lineTo(x+7,y-48);ctx.lineTo(x+2,y-40);ctx.fill();
+ circ(x-8,y-40,3,'#9a9a96');
+ ctx.strokeStyle='#4a4a48';ctx.lineWidth=1.6;ctx.beginPath();ctx.arc(x-4,y-32,2,3.4,6);ctx.moveTo(x+6,y-32);ctx.arc(x+4,y-32,2,3.4,6);ctx.stroke();
+ circ(x,y-28,1.4,'#e2829a');
+ ctx.strokeStyle='#f1f1ef';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(x+12,y-6);ctx.quadraticCurveTo(x+28,y-6+Math.sin(t*2)*3,x+24,y-24);ctx.stroke();
 }
+function arch(h){
+ const x=270,g=1-h;
+ ctx.strokeStyle='#ffffff';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(x-46,GY);ctx.lineTo(x-46,GY-80);ctx.arc(x,GY-80,46,Math.PI,0);ctx.lineTo(x+46,GY);ctx.stroke();
+ ctx.strokeStyle=h>.4?'#8f7d56':'#5f9e6e';ctx.lineWidth=3;ctx.beginPath();
+ for(let k=0;k<=40;k++){const a=k/40,p=archPt(a);ctx.lineTo(p.x+Math.sin(a*30)*3,p.y+Math.cos(a*30)*3)}ctx.stroke();
+ const n=Math.round(g*16);for(let k=0;k<n;k++){const p=archPt((k+.5)/16);flowerAt(p.x,p.y,6,k%3?'#e2829a':'#f4a6b8')}
+ rr(x-18,GY-24,36,4,2,'#c9b39a');ctx.fillStyle='#c9b39a';ctx.fillRect(x-2,GY-20,4,20);
+ if(h<=0){cat(x-78,GY);ctx.fillStyle='#fff';rr(x-8,GY-33,14,10,3,'#ffffff');ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x+7,GY-28,3,-1.5,1.5);ctx.stroke();
+  ctx.strokeStyle='rgba(255,255,255,.8)';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x-2,GY-37);ctx.quadraticCurveTo(x+2,GY-43+Math.sin(t*3)*2,x-1,GY-49);ctx.stroke()}
+}
+function archPt(a){const x=270;const L=80+Math.PI*46+80,d=a*L;if(d<80)return{x:x-46,y:GY-d};if(d<80+Math.PI*46){const an=Math.PI+(d-80)/46;return{x:x+Math.cos(an)*46,y:GY-80+Math.sin(an)*46}}return{x:x+46,y:GY-80+(d-80-Math.PI*46)}}
 function hero(){
- const x=62,b=water?Math.sin(t*14)*1.5:Math.sin(t*2)*2,y=GY-26+b;
- ctx.fillStyle='rgba(0,0,0,.12)';ctx.beginPath();ctx.ellipse(x,GY,16,4,0,0,7);ctx.fill();
- const g=ctx.createLinearGradient(x-16,y-30,x+16,y+16);g.addColorStop(0,'#8fe0ff');g.addColorStop(1,'#1f8fd0');
+ const x=62,b=water?Math.sin(t*12)*1.5:Math.sin(t*2)*2,y=GY-26+b;
+ ctx.fillStyle='rgba(0,0,0,.1)';ctx.beginPath();ctx.ellipse(x,GY,16,4,0,0,7);ctx.fill();
+ const g=ctx.createLinearGradient(x-16,y-30,x+16,y+16);g.addColorStop(0,'#bfe9fb');g.addColorStop(1,'#4aa8d8');
  ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(x,y-34);ctx.quadraticCurveTo(x+20,y-6,x+16,y+6);ctx.arc(x,y+6,16,0,Math.PI);ctx.quadraticCurveTo(x-20,y-6,x,y-34);ctx.fill();
- circ(x-6,y-12,4,'rgba(255,255,255,.7)');
- if(water){circ(x-5,y+2,2.6,'#0d3348');circ(x+6,y+2,2.6,'#0d3348');ctx.strokeStyle='#0d3348';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x+1,y+8,4,0.2,2.9);ctx.stroke()}
- else{ctx.strokeStyle='#0d3348';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x-8,y+2);ctx.lineTo(x-2,y+2);ctx.moveTo(x+3,y+2);ctx.lineTo(x+9,y+2);ctx.stroke();
-  ctx.fillStyle='#ffffff';ctx.font='800 13px "M PLUS Rounded 1c",sans-serif';ctx.textAlign='left';ctx.fillText('すや…',x+12,y-30+Math.sin(t*2)*2)}
+ circ(x-6,y-12,4,'rgba(255,255,255,.75)');
+ circ(x+6,y-30,4,'#e2829a');circ(x+13,y-30,4,'#e2829a');circ(x+9.5,y-30,2,'#c96a82');
+ circ(x-9,y+6,3,'rgba(226,130,154,.45)');circ(x+10,y+6,3,'rgba(226,130,154,.45)');
+ ctx.strokeStyle='#22445a';ctx.lineWidth=2;
+ if(water){circ(x-5,y+2,2.4,'#22445a');circ(x+6,y+2,2.4,'#22445a');ctx.beginPath();ctx.arc(x+1,y+7,3.5,0.2,2.9);ctx.stroke()}
+ else{ctx.beginPath();ctx.arc(x-5,y+2,2.6,0.3,2.8);ctx.moveTo(x+8.6,y+2.6);ctx.arc(x+6,y+2,2.6,0.3,2.8);ctx.stroke()}
 }
 function scene(){
  const st=STAGES[S.stage];
- const g=ctx.createLinearGradient(0,0,0,GY);g.addColorStop(0,st.sky[0]);g.addColorStop(1,st.sky[1]);ctx.fillStyle=g;ctx.fillRect(0,0,W,GY);
- ctx.fillStyle='rgba(255,255,255,.55)';for(let k=0;k<3;k++){const cx=((k*150+t*6)%480)-40;circ(cx,40+k*18,14,ctx.fillStyle);circ(cx+16,36+k*18,18,ctx.fillStyle);circ(cx+34,42+k*18,12,ctx.fillStyle)}
- ctx.fillStyle='rgba(60,110,70,.35)';ctx.beginPath();ctx.moveTo(0,GY);for(let x=0;x<=W;x+=20)ctx.lineTo(x,GY-30-Math.sin(x/50+S.stage)*16);ctx.lineTo(W,GY);ctx.fill();
- ctx.fillStyle=st.kind==='boss'?'#5f7a55':st.ground;ctx.fillRect(0,GY,W,H-GY);
- ctx.fillStyle='rgba(0,0,0,.06)';ctx.fillRect(0,GY,W,4);
- if(st.kind==='boss'){ctx.fillStyle='rgba(107,79,143,.35)';ctx.beginPath();ctx.ellipse(280,GY+20,120*(0.3+0.7*S.hp[0]),14,0,0,7);ctx.fill()}
- st.items.forEach((it,i)=>{const h=S.hp[i];if(it==='house')house(XS[i],h);else if(it==='tree')tree(XS[i],h);else if(it==='field')field(XS[i],h);else boss(h)});
+ if(st.bg==='wall'){ctx.fillStyle='#e4eee2';ctx.fillRect(0,0,W,GY);ctx.fillStyle='rgba(255,255,255,.35)';for(let x=10;x<W;x+=28)ctx.fillRect(x,0,10,GY);
+  ctx.fillStyle='#f7f3ec';ctx.fillRect(0,GY-30,W,30);ctx.fillStyle='#d8cfc2';ctx.fillRect(0,GY-31,W,2);ctx.fillStyle='#cdb89c';ctx.fillRect(0,GY,W,H-GY);
+  ctx.fillStyle='rgba(255,255,255,.18)';for(let x=0;x<W;x+=50)ctx.fillRect(x,GY,2,H-GY);
+  for(const lx of [120,280]){ctx.strokeStyle='#8a9a8e';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(lx,0);ctx.lineTo(lx,46);ctx.stroke();ctx.fillStyle='#ffffff';ctx.beginPath();ctx.moveTo(lx-16,62);ctx.quadraticCurveTo(lx-14,44,lx,44);ctx.quadraticCurveTo(lx+14,44,lx+16,62);ctx.fill();circ(lx,64,5,water?'#fff1b8':'#f1ead8');if(water){ctx.fillStyle='rgba(255,241,184,.25)';ctx.beginPath();ctx.moveTo(lx-16,62);ctx.lineTo(lx-40,110);ctx.lineTo(lx+40,110);ctx.lineTo(lx+16,62);ctx.fill()}}
+  rr(196,30,44,34,3,'#ffffff');rr(200,34,36,26,2,'#cfe3d4');circ(212,52,6,'#9cc7a8');circ(224,50,8,'#7fae8e');circ(228,40,4,'#f2d27a')}
+ else{const g=ctx.createLinearGradient(0,0,0,GY);g.addColorStop(0,'#bfe2ef');g.addColorStop(1,'#f2f8ef');ctx.fillStyle=g;ctx.fillRect(0,0,W,GY);
+  for(let k=0;k<3;k++){const cx=((k*150+t*5)%480)-40;circ(cx,40+k*16,13,'rgba(255,255,255,.8)');circ(cx+15,35+k*16,17,'rgba(255,255,255,.8)');circ(cx+32,41+k*16,11,'rgba(255,255,255,.8)')}
+  ctx.fillStyle='#c9dfc6';ctx.beginPath();ctx.moveTo(0,GY);for(let x=0;x<=W;x+=20)ctx.lineTo(x,GY-24-Math.sin(x/60+S.stage)*12);ctx.lineTo(W,GY);ctx.fill();
+  ctx.fillStyle='#a6cc98';ctx.fillRect(0,GY,W,H-GY);ctx.fillStyle='rgba(255,255,255,.12)';ctx.fillRect(0,GY,W,5)}
+ st.items.forEach((it,i)=>{const h=S.hp[i];if(it==='win')win(XS[i],h);else if(it==='herb')herb(XS[i],h);else if(it==='field')field(XS[i],h);else arch(h)});
  hero();
- for(const p of parts){ctx.fillStyle=`rgba(80,190,240,${p.a})`;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);ctx.fill()}
- for(const p of splash){ctx.fillStyle=p.c||`rgba(200,240,255,${p.l*2})`;ctx.globalAlpha=Math.min(1,p.l*2);ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);ctx.fill();ctx.globalAlpha=1}
- ctx.textAlign='center';ctx.fillStyle='rgba(18,48,64,.72)';ctx.fillRect(0,H-34,W,34);
- ctx.fillStyle='#fff';ctx.font='800 15px "M PLUS Rounded 1c",sans-serif';
- ctx.fillText(clearT>0?'':(water?'じゃぶじゃぶ！ 洗い流し中':'水を出すと、しずくが動きだすよ'),W/2,H-12);
- if(clearT>0){ctx.fillStyle='rgba(255,255,255,.85)';ctx.fillRect(40,100,W-80,70);ctx.fillStyle='#ff8a3d';ctx.font='800 26px "M PLUS Rounded 1c",sans-serif';
-  ctx.fillText(S.stage===STAGES.length-1&&S.hp.every(h=>h<=0)?'世界がきれいになった！':'ステージクリア！',W/2,140);
-  ctx.fillStyle='#123040';ctx.font='800 13px "M PLUS Rounded 1c",sans-serif';ctx.fillText(st.name+' がよみがえった',W/2,160)}
+ for(const p of parts){ctx.fillStyle=`rgba(110,190,230,${p.a})`;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);ctx.fill()}
+ for(const p of splash){ctx.globalAlpha=Math.min(1,p.l*2);ctx.fillStyle=p.c||'#e6f6ff';ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);ctx.fill();ctx.globalAlpha=1}
+ ctx.textAlign='center';rr(14,H-40,W-28,30,15,'rgba(255,255,255,.88)');
+ ctx.fillStyle='#3f5a48';ctx.font='700 14px '+F;
+ ctx.fillText(toastT>0?toast:(water?'しゃぼしゃぼ… きれいにしてるよ':'水を出すと、しずくが目をさますよ'),W/2,H-20);
+ if(clearT>0){rr(50,96,W-100,72,20,'rgba(255,255,255,.94)');ctx.fillStyle='#e2829a';ctx.font='700 22px '+F;
+  ctx.fillText(S.stage===STAGES.length-1?'花束をひとつ集めました':'きれいになりました',W/2,128);
+  ctx.fillStyle='#4f6a58';ctx.font='700 13px '+F;ctx.fillText(st.done,W/2,152)}
 }
 
-// ---- update ----
 let last=performance.now(),saveT=0;
 function step(now){
  const dt=Math.min(0.1,(now-last)/1000);last=now;t+=dt;
  if(micOn)micTick(dt);
  water=manual||micState;
+ if(water&&!wasWater){session=0;markDay()}
+ if(!water&&wasWater&&session>10){const m=Math.floor(session/60),s=Math.floor(session%60);toast=PRAISE[Math.floor(Math.random()*PRAISE.length)]+'　'+(m?m+'分':'')+s+'秒がんばりました';toastT=5;stats();save()}
+ wasWater=water;if(toastT>0)toastT-=dt;
  const st=STAGES[S.stage],sp=$('fast').checked?5:1;
  if(clearT>0){clearT-=dt;if(clearT<=0){S.stage++;if(S.stage>=STAGES.length){S.stage=0;S.laps++}resetHp();save();ui()}}
  else if(water){
-  S.todaySec+=dt;
+  S.todaySec+=dt;session+=dt;
   const i=target();
   if(i>=0){S.hp[i]-=dt*sp/(st.sec/st.items.length);
    const tp=tpos(i);
-   if(Math.random()<dt*45){const T=0.55,sx=78,sy=GY-40;parts.push({x:sx,y:sy,vx:(tp.x-sx)/T+(Math.random()-.5)*20,vy:(tp.y-sy)/T-0.5*520*T,l:T,r:2+Math.random()*2.5,a:.9})}
-   if(S.hp[i]<=0){S.hp[i]=0;for(let k=0;k<26;k++){const a=Math.random()*7,v=40+Math.random()*90;splash.push({x:tp.x,y:tp.y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-60,l:.8,r:2+Math.random()*3,c:['#ffd23a','#7fd9ff','#ffffff','#ff8fb0'][k%4]})}
-    if(target()<0){clearT=3}ui()}
+   if(Math.random()<dt*40){const T=0.55,sx=78,sy=GY-40;parts.push({x:sx,y:sy,vx:(tp.x-sx)/T+(Math.random()-.5)*20,vy:(tp.y-sy)/T-0.5*520*T,l:T,r:2+Math.random()*2.5,a:.85})}
+   if(S.hp[i]<=0){S.hp[i]=0;for(let k=0;k<24;k++){const a=Math.random()*7,v=40+Math.random()*80;splash.push({x:tp.x,y:tp.y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-60,l:.9,r:2+Math.random()*3,c:['#f4a6b8','#bfe9fb','#ffffff','#f2d27a'][k%4]})}
+    if(target()<0)clearT=3.5;ui()}
   }
  }
- for(const p of parts){p.x+=p.vx*dt;p.vy+=520*dt;p.y+=p.vy*dt;p.l-=dt;if(p.l<=0){for(let k=0;k<3;k++)splash.push({x:p.x,y:p.y,vx:(Math.random()-.5)*80,vy:-Math.random()*80,l:.35,r:1.5+Math.random()})}}
+ for(const p of parts){p.x+=p.vx*dt;p.vy+=520*dt;p.y+=p.vy*dt;p.l-=dt;if(p.l<=0)for(let k=0;k<3;k++)splash.push({x:p.x,y:p.y,vx:(Math.random()-.5)*80,vy:-Math.random()*80,l:.35,r:1.5+Math.random()})}
  parts=parts.filter(p=>p.l>0);
  for(const p of splash){p.x+=p.vx*dt;p.vy+=300*dt;p.y+=p.vy*dt;p.l-=dt}
  splash=splash.filter(p=>p.l>0);
  const s=Math.min(cv.width/W,cv.height/H);
- ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#bfe3f2';ctx.fillRect(0,0,cv.width,cv.height);
+ ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#e7f1e6';ctx.fillRect(0,0,cv.width,cv.height);
  ctx.setTransform(s,0,0,s,(cv.width-W*s)/2,(cv.height-H*s)/2);
  scene();
- saveT+=dt;if(saveT>2){saveT=0;save();stats()}
+ saveT+=dt;if(saveT>2){saveT=0;save();stats();prog()}
  requestAnimationFrame(step);
 }
-function stats(){const m=Math.floor(S.todaySec/60),sc=Math.floor(S.todaySec%60);$('today').textContent=m+'分'+sc+'秒';$('laps').textContent=S.laps}
+function prog(){const st=STAGES[S.stage];$('prog').style.width=((st.items.length-S.hp.reduce((a,b)=>a+b,0))/st.items.length*100)+'%'}
+function stats(){const m=Math.floor(S.todaySec/60);$('today').textContent=m+'分';$('streak').textContent=S.streak+'日';$('laps').textContent=S.laps+'束'}
 function ui(){
- const st=STAGES[S.stage];$('sname').textContent=(S.stage+1)+'. '+st.name;
- const done=st.items.length-S.hp.reduce((a,b)=>a+b,0);$('prog').style.width=(done/st.items.length*100)+'%';
- $('map').innerHTML=STAGES.map((s,i)=>`<span class="${i<S.stage?'done':i===S.stage?'now':''}">${s.name}</span>`).join('');
- stats();
+ $('rooms').innerHTML=STAGES.map((s,i)=>`<span class="${i<S.stage?'done':i===S.stage?'now':''}">${s.name}</span>`).join('');
+ prog();stats();
 }
-setInterval(()=>{const st=STAGES[S.stage];const done=st.items.length-S.hp.reduce((a,b)=>a+b,0);$('prog').style.width=(done/st.items.length*100)+'%'},500);
 
 // ---- microphone ----
-let an,buf,base=null,calib=[],micState=false,onT=0,offT=0,bandLo,bandHi;
+let an,buf,base=null,calib=[],micState=false,onT=0,offT=0,bandLo,bandHi,midLo,midHi,midBase=null,calibM=[],hist=[];
 const msg=m=>$('msg').textContent=m;
 async function startMic(){
  try{
@@ -222,11 +250,10 @@ async function startMic(){
   const ac=new (window.AudioContext||window.webkitAudioContext)();await ac.resume();
   an=ac.createAnalyser();an.fftSize=2048;an.smoothingTimeConstant=.6;ac.createMediaStreamSource(stream).connect(an);
   buf=new Float32Array(an.frequencyBinCount);const hz=ac.sampleRate/an.fftSize;bandLo=Math.round(3500/hz);bandHi=Math.min(an.frequencyBinCount,Math.round(11000/hz));midLo=Math.round(250/hz);midHi=Math.round(2000/hz);
-  micOn=true;recal();$('micBtn').classList.add('on');$('micBtn').textContent='マイク検知中';$('calBtn').disabled=false;
- }catch(e){msg('この画面ではマイクが使えませんでした。下の「手動」ボタンか、ゲーム画面のタップで遊べます。');}
+  micOn=true;recal();$('micBtn').classList.add('on');$('micBtn').textContent='水の音を待っています';$('calBtn').disabled=false;
+ }catch(e){msg('マイクが使えませんでした。「手動で始める」か、絵のところをタップして遊べます。');}
 }
-let midLo,midHi,midBase=null,calibM=[],hist=[];
-function recal(){base=null;calib=[];calibM=[];hist=[];msg('静かな音を測っています…（2秒ほど水を止めてね）')}
+function recal(){base=null;calib=[];calibM=[];hist=[];msg('まわりの音を聞いています…（2秒ほど水を止めてね）')}
 function bandDb(lo,hi){let sum=0,lg=0,n=0;for(let i=lo;i<hi;i++){const p=Math.pow(10,buf[i]/10)+1e-12;sum+=p;lg+=Math.log(p);n++}return[10*Math.log10(sum/n),Math.exp(lg/n)/(sum/n)]}
 const med=a=>{const s=[...a].sort((x,y)=>x-y);return s[Math.floor(s.length/2)]};
 function micTick(dt){
@@ -234,7 +261,7 @@ function micTick(dt){
  // 水の音：高い音域まで「シャー」と平らに広がり、音量が一定
  // 人の声：低〜中音域が強く、音の高さがあり、強弱が激しい
  const [db,flat]=bandDb(bandLo,bandHi),[mid]=bandDb(midLo,midHi);
- if(base===null){calib.push(db);calibM.push(mid);if(calib.length>90){base=med(calib);midBase=med(calibM);msg('準備OK！ 水を出してみてね')}return}
+ if(base===null){calib.push(db);calibM.push(mid);if(calib.length>90){base=med(calib);midBase=med(calibM);msg('準備できました。水を出してみてね')}return}
  const over=db-base,midOver=mid-midBase,thr=+$('sens').max+3-$('sens').value;
  hist.push(db);if(hist.length>45)hist.shift();
  const m=hist.reduce((a,b)=>a+b,0)/hist.length,sd=Math.sqrt(hist.reduce((a,b)=>a+(b-m)**2,0)/hist.length);
@@ -246,7 +273,7 @@ function micTick(dt){
  if(!micState&&onT>1.0)micState=true;
  if(micState&&offT>1.5)micState=false;
 }
-function toggleManual(){manual=!manual;$('manBtn').classList.toggle('on',manual);$('manBtn').textContent=manual?'手動：水を止めた':'手動：水を出してる'}
+function toggleManual(){manual=!manual;$('manBtn').classList.toggle('on',manual);$('manBtn').textContent=manual?'手動で止める':'手動で始める'}
 $('micBtn').addEventListener('click',()=>{if(!micOn)startMic()});
 $('manBtn').addEventListener('click',toggleManual);
 cv.addEventListener('click',toggleManual);
