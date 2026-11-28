@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>しずくのおうち時間</title>
+<meta name="description" content="洗い物をしている間だけ、しずくがおうちとお庭を整えてくれる癒しゲーム">
+<meta name="theme-color" content="#7fae8e">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="しずく">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
 <style>
@@ -27,7 +34,16 @@ h1{font-size:23px;line-height:1.2;margin:2px 0 2px;font-weight:700}
 .rooms span.done{background:var(--sage);color:#fff;border-color:var(--sage)}
 .bar{height:12px;background:var(--card);border:1px solid var(--line);border-radius:99px;overflow:hidden}
 .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#a9d3b5,var(--sage));transition:width .4s}
-.today{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0}
+.today{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:14px 0}
+@media(min-width:560px){.today{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.today .save b{color:#3f8fb8}
+#install{display:none}
+dialog{border:0;border-radius:24px;padding:0;max-width:min(420px,92vw);width:100%;background:var(--card);color:var(--ink);box-shadow:0 18px 48px rgba(40,70,50,.28)}
+dialog::backdrop{background:rgba(30,45,35,.45)}
+.card{padding:20px 18px 16px;display:grid;gap:12px;text-align:center}
+.card h2{margin:0;font-size:22px;color:var(--rose)}
+.card img{width:100%;border-radius:16px;display:block;border:1px solid var(--line)}
+.card .row{justify-content:center}
 .today div{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px 12px}
 .today small{display:block;font-size:13px;color:var(--sub)}
 .today b{font-size:clamp(18px,5vw,24px);font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -57,7 +73,8 @@ details summary{cursor:pointer;font-size:14px;color:var(--sub);min-height:32px}
 <div class="bar" aria-label="いまの場所の進み具合"><i id="prog"></i></div>
 <div class="today">
   <div><small>今日の洗い物</small><b id="today">0分</b></div>
-  <div><small>続けた日数</small><b id="streak">0日</b></div>
+  <div class="save"><small>節水できた時間</small><b id="saved">0分</b></div>
+  <div><small>洗った日</small><b id="streak">0日</b></div>
   <div><small>集めた花束</small><b id="laps">0束</b></div>
 </div>
 <div class="ctrl">
@@ -79,9 +96,22 @@ details summary{cursor:pointer;font-size:14px;color:var(--sub);min-height:32px}
       <label><input type="checkbox" id="fast" style="width:22px;height:22px"> お試し速度（5倍速）</label>
     </div>
   </details>
+  <p class="note">食器を洗う「カチャ」という音があると、しずくがはりきって早く進みます。水を止めて洗っている間は「節水のしずく」がたまります。</p>
   <p class="note">音はこのスマホの中で聞き分けるだけで、録音も送信もしません。手が濡れていても、絵のところをタップすれば始める・止めるができます。</p>
+  <button class="ghost" id="install">ホーム画面に追加する</button>
 </div>
 </main>
+<dialog id="dlg" aria-labelledby="dlgTitle">
+  <div class="card">
+    <h2 id="dlgTitle">おつかれさま！</h2>
+    <img id="dlgImg" alt="今日のおうちの様子と記録">
+    <p class="note">画像は保存して、SNSにそのまま投稿できます。</p>
+    <div class="row">
+      <button id="shareBtn">画像を保存・共有</button>
+      <button class="ghost" id="closeBtn">とじる</button>
+    </div>
+  </div>
+</dialog>
 <script>
 {
 const $=id=>document.getElementById(id);
@@ -95,20 +125,26 @@ const STAGES=[
 ];
 const PRAISE=['おつかれさま！','今日もえらい！','ていねいな暮らし、できてます','きれいになると気持ちいいね','ひと息ついてね'];
 const XS=[150,212,274,336];
-let S={stage:0,hp:null,laps:0,day:'',todaySec:0,streak:0,lastDay:''};
+let S={stage:0,hp:null,laps:0,day:'',todaySec:0,todaySaved:0,savedSec:0,streak:0,lastDay:''};
 try{const s=JSON.parse(localStorage.getItem('shizuku-home')||'null');if(s&&typeof s.stage==='number')S=Object.assign(S,s)}catch(e){}
 const dkey=d=>(d||new Date()).toLocaleDateString('ja-JP');
-if(S.day!==dkey()){S.day=dkey();S.todaySec=0}
+function newDay(){if(S.day!==dkey()){S.day=dkey();S.todaySec=0;S.todaySaved=0}}
+newDay();
 function resetHp(){S.hp=STAGES[S.stage].items.map(()=>1)}
 if(!S.hp||S.hp.length!==STAGES[S.stage].items.length)resetHp();
 const save=()=>{try{localStorage.setItem('shizuku-home',JSON.stringify(S))}catch(e){}};
-function markDay(){const k=dkey();if(S.lastDay===k)return;const y=new Date();y.setDate(y.getDate()-1);S.streak=S.lastDay===dkey(y)?S.streak+1:1;S.lastDay=k;stats()}
+// 「洗った日」は合計日数。途切れても減らないので、休んだ日を責めない
+if(typeof S.days!=='number')S.days=S.lastDay?Math.max(1,S.streak):0;
+function markDay(){newDay();const k=dkey();if(S.lastDay===k)return;const y=new Date();y.setDate(y.getDate()-1);S.streak=S.lastDay===dkey(y)?S.streak+1:1;S.days++;S.lastDay=k;stats()}
 
 let W=400,H=300;
 function size(){const r=cv.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);cv.width=r.width*d;cv.height=r.height*d}
 const ro=new ResizeObserver(size);ro.observe(cv);
 
+// water = 洗い物中かどうか（水の音・手動・水を止めて洗っている間のどれか）
 let water=false,manual=false,micOn=false,clearT=0,parts=[],splash=[],t=0,session=0,toast='',toastT=0,wasWater=false;
+let saving=false,clinky=false,sesSaved=0,idleT=0;
+const ENDGAP=8; // 8秒以上洗い物が止まったら「おしまい」とみなす
 const GY=225;
 const target=()=>S.hp.findIndex(h=>h>0);
 function tpos(i){const k=STAGES[S.stage].items[i];if(k==='arch')return{x:270,y:GY-90};if(k==='win')return{x:XS[i],y:GY-72};if(k==='herb')return{x:XS[i],y:GY-34};return{x:XS[i],y:GY}}
@@ -195,9 +231,11 @@ function scene(){
  hero();
  for(const p of parts){ctx.fillStyle=`rgba(110,190,230,${p.a})`;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);ctx.fill()}
  for(const p of splash){ctx.globalAlpha=Math.min(1,p.l*2);ctx.fillStyle=p.c||'#e6f6ff';ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);ctx.fill();ctx.globalAlpha=1}
- ctx.textAlign='center';rr(14,H-40,W-28,30,15,'rgba(255,255,255,.88)');
+ ctx.textAlign='center';
+ if(!hideBar){rr(14,H-40,W-28,30,15,'rgba(255,255,255,.88)');
  ctx.fillStyle='#3f5a48';ctx.font='700 14px '+F;
- ctx.fillText(toastT>0?toast:(water?'しゃぼしゃぼ… きれいにしてるよ':'水を出すと、しずくが目をさますよ'),W/2,H-20);
+ const line=saving?'水を止めて洗ってるね。節水のしずく、たまってるよ':water&&clinky?'カチャカチャ… はりきってるよ':water?'しゃぼしゃぼ… きれいにしてるよ':'水を出すと、しずくが目をさますよ';
+ ctx.fillText(toastT>0?toast:line,W/2,H-20);}
  if(clearT>0){rr(50,96,W-100,72,20,'rgba(255,255,255,.94)');ctx.fillStyle='#e2829a';ctx.font='700 22px '+F;
   ctx.fillText(S.stage===STAGES.length-1?'花束をひとつ集めました':'きれいになりました',W/2,128);
   ctx.fillStyle='#4f6a58';ctx.font='700 13px '+F;ctx.fillText(st.done,W/2,152)}
@@ -207,11 +245,19 @@ let last=performance.now(),saveT=0;
 function step(now){
  const dt=Math.min(0.1,(now-last)/1000);last=now;t+=dt;
  if(micOn)micTick(dt);
- water=manual||micState;
- if(water&&!wasWater){session=0;markDay()}
- if(!water&&wasWater&&session>10){const m=Math.floor(session/60),s=Math.floor(session%60);toast=PRAISE[Math.floor(Math.random()*PRAISE.length)]+'　'+(m?m+'分':'')+s+'秒がんばりました';toastT=5;stats();save()}
+ clinky=micOn&&clinkT<2.5;
+ saving=micOn&&!micState&&!manual&&clinky;
+ water=manual||micState||saving;
+ if(water&&!wasWater)markDay();
+ if(water)idleT=0;else idleT+=dt;
+ if(!water&&wasWater&&session>10){toast='ひと休み中。また洗うと続きから進むよ';toastT=4;stats();save()}
+ if(!water&&idleT>ENDGAP&&session>0)finish();
  wasWater=water;if(toastT>0)toastT-=dt;
- const st=STAGES[S.stage],sp=$('fast').checked?5:1;
+ const st=STAGES[S.stage];
+ // 進む速さ：食器の音があると速く、水を流しているだけだとゆっくり
+ const mult=manual?1:micState?(clinky?1.25:0.45):saving?0.9:0;
+ const sp=($('fast').checked?5:1)*mult;
+ if(saving){S.savedSec+=dt;S.todaySaved+=dt;sesSaved+=dt}
  if(clearT>0){clearT-=dt;if(clearT<=0){S.stage++;if(S.stage>=STAGES.length){S.stage=0;S.laps++}resetHp();save();ui()}}
  else if(water){
   S.todaySec+=dt;session+=dt;
@@ -227,15 +273,20 @@ function step(now){
  parts=parts.filter(p=>p.l>0);
  for(const p of splash){p.x+=p.vx*dt;p.vy+=300*dt;p.y+=p.vy*dt;p.l-=dt}
  splash=splash.filter(p=>p.l>0);
+ render();
+ saveT+=dt;if(saveT>2){saveT=0;save();stats();prog()}
+ requestAnimationFrame(step);
+}
+let hideBar=false;
+function render(){
  const s=Math.min(cv.width/W,cv.height/H);
  ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#e7f1e6';ctx.fillRect(0,0,cv.width,cv.height);
  ctx.setTransform(s,0,0,s,(cv.width-W*s)/2,(cv.height-H*s)/2);
  scene();
- saveT+=dt;if(saveT>2){saveT=0;save();stats();prog()}
- requestAnimationFrame(step);
 }
 function prog(){const st=STAGES[S.stage];$('prog').style.width=((st.items.length-S.hp.reduce((a,b)=>a+b,0))/st.items.length*100)+'%'}
-function stats(){const m=Math.floor(S.todaySec/60);$('today').textContent=m+'分';$('streak').textContent=S.streak+'日';$('laps').textContent=S.laps+'束'}
+const dur=sec=>{sec=Math.floor(sec);const m=Math.floor(sec/60),s=sec%60;return m?(s&&m<10?m+'分'+s+'秒':m+'分'):s+'秒'};
+function stats(){newDay();$('today').textContent=Math.floor(S.todaySec/60)+'分';$('saved').textContent=dur(S.todaySaved);$('streak').textContent=S.days+'日';$('laps').textContent=S.laps+'束'}
 function ui(){
  $('rooms').innerHTML=STAGES.map((s,i)=>`<span class="${i<S.stage?'done':i===S.stage?'now':''}">${s.name}</span>`).join('');
  prog();stats();
@@ -243,17 +294,19 @@ function ui(){
 
 // ---- microphone ----
 let an,buf,base=null,calib=[],micState=false,onT=0,offT=0,bandLo,bandHi,midLo,midHi,midBase=null,calibM=[],hist=[];
+// 食器の音：2〜8kHzに一瞬だけ強く出る「カチャ」を数える
+let clLo,clHi,clHist=[],clinkT=99,clinkGap=0;
 const msg=m=>$('msg').textContent=m;
 async function startMic(){
  try{
   const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
   const ac=new (window.AudioContext||window.webkitAudioContext)();await ac.resume();
   an=ac.createAnalyser();an.fftSize=2048;an.smoothingTimeConstant=.6;ac.createMediaStreamSource(stream).connect(an);
-  buf=new Float32Array(an.frequencyBinCount);const hz=ac.sampleRate/an.fftSize;bandLo=Math.round(3500/hz);bandHi=Math.min(an.frequencyBinCount,Math.round(11000/hz));midLo=Math.round(250/hz);midHi=Math.round(2000/hz);
-  micOn=true;recal();$('micBtn').classList.add('on');$('micBtn').textContent='水の音を待っています';$('calBtn').disabled=false;
+  buf=new Float32Array(an.frequencyBinCount);const hz=ac.sampleRate/an.fftSize;bandLo=Math.round(3500/hz);bandHi=Math.min(an.frequencyBinCount,Math.round(11000/hz));midLo=Math.round(250/hz);midHi=Math.round(2000/hz);clLo=Math.round(2000/hz);clHi=Math.min(an.frequencyBinCount,Math.round(8000/hz));
+  micOn=true;recal();keepAwake();$('micBtn').classList.add('on');$('micBtn').textContent='水の音を待っています';$('calBtn').disabled=false;
  }catch(e){msg('マイクが使えませんでした。「手動で始める」か、絵のところをタップして遊べます。');}
 }
-function recal(){base=null;calib=[];calibM=[];hist=[];msg('まわりの音を聞いています…（2秒ほど水を止めてね）')}
+function recal(){base=null;calib=[];calibM=[];hist=[];clHist=[];clinkT=99;msg('まわりの音を聞いています…（2秒ほど水を止めてね）')}
 function bandDb(lo,hi){let sum=0,lg=0,n=0;for(let i=lo;i<hi;i++){const p=Math.pow(10,buf[i]/10)+1e-12;sum+=p;lg+=Math.log(p);n++}return[10*Math.log10(sum/n),Math.exp(lg/n)/(sum/n)]}
 const med=a=>{const s=[...a].sort((x,y)=>x-y);return s[Math.floor(s.length/2)]};
 function micTick(dt){
@@ -268,12 +321,69 @@ function micTick(dt){
  $('lvl').style.width=Math.max(0,Math.min(100,over/(thr*2)*100))+'%';
  const loud=over>thr,steady=sd<4.5,noisy=flat>0.25,notVoice=midOver-over<8;
  const hit=loud&&steady&&noisy&&notVoice;
- $('judge').textContent=!loud?'静か':hit?'水の音':'水じゃなさそう';
+ // 食器の音：直前の音より急に強くなり、人の声ほど低い音が強くない
+ const [cdb]=bandDb(clLo,clHi);
+ const cmed=clHist.length?med(clHist):cdb;clHist.push(cdb);if(clHist.length>24)clHist.shift();
+ clinkT+=dt;clinkGap+=dt;
+ if(clHist.length>12&&cdb-cmed>thr+2&&mid-midBase<cdb-cmed+6&&clinkGap>.12){clinkT=0;clinkGap=0}
+ $('judge').textContent=clinkT<.4?'食器の音':!loud?'静か':hit?'水の音':'水じゃなさそう';
  if(hit){onT+=dt;offT=0}else{offT+=dt;onT=Math.max(0,onT-dt*1.5)}
  if(!micState&&onT>1.0)micState=true;
  if(micState&&offT>1.5)micState=false;
 }
-function toggleManual(){manual=!manual;$('manBtn').classList.toggle('on',manual);$('manBtn').textContent=manual?'手動で止める':'手動で始める'}
+function toggleManual(){manual=!manual;$('manBtn').classList.toggle('on',manual);$('manBtn').textContent=manual?'手動で止める':'手動で始める';if(manual)keepAwake();else if(!micState)finish()}
+
+// ---- おつかれさまカード ----
+let cardBlob=null;
+function finish(){
+ const ses=session,sv=sesSaved;session=0;sesSaved=0;idleT=0;
+ if(ses<20){if(ses>3){toast=PRAISE[Math.floor(Math.random()*PRAISE.length)];toastT=4}return}
+ stats();save();
+ const praise=PRAISE[Math.floor(Math.random()*PRAISE.length)];
+ const st=STAGES[S.stage],pct=Math.round((st.items.length-S.hp.reduce((a,b)=>a+b,0))/st.items.length*100);
+ $('dlgImg').removeAttribute('src');
+ drawCard(ses,sv,praise,st.name,pct).then(b=>{cardBlob=b;$('dlgImg').src=URL.createObjectURL(b)});
+ const d=$('dlg');if(!d.open)(d.showModal?d.showModal():d.setAttribute('open',''));
+}
+async function drawCard(ses,sv,praise,place,pct){
+ try{await document.fonts.ready}catch(e){}
+ const c=document.createElement('canvas');c.width=1080;c.height=1350;const g=c.getContext('2d');
+ const R=(x,y,w,h,r,col)=>{g.fillStyle=col;g.beginPath();g.roundRect(x,y,w,h,r);g.fill()};
+ g.fillStyle='#f3f7f1';g.fillRect(0,0,1080,1350);
+ g.textAlign='center';g.fillStyle='#6a7d70';g.font='500 34px '+F;
+ g.fillText(new Date().toLocaleDateString('ja-JP',{year:'numeric',month:'long',day:'numeric',weekday:'short'}),540,92);
+ g.fillStyle='#e2829a';g.font='700 64px '+F;g.fillText(praise,540,178);
+ // いまのおうちの絵（ゲーム画面を4:3で切り出す）
+ hideBar=true;render();hideBar=false; // 下のメッセージ帯を消した絵を写す
+ const s=Math.min(cv.width/W,cv.height/H),sx=(cv.width-W*s)/2,sy=(cv.height-H*s)/2;
+ g.save();g.beginPath();g.roundRect(60,226,960,720,40);g.clip();g.drawImage(cv,sx,sy,W*s,H*s,60,226,960,720);g.restore();
+ const box=(x,label,val,col)=>{R(x,986,300,170,32,'#ffffff');g.fillStyle='#6a7d70';g.font='500 30px '+F;g.fillText(label,x+150,1040);g.fillStyle=col;g.font='700 56px '+F;g.fillText(val,x+150,1118)};
+ box(60,'今回の洗い物',dur(ses),'#2f3d34');box(390,'節水できた',dur(sv),'#3f8fb8');box(720,'今日の合計',dur(S.todaySec),'#2f3d34');
+ g.fillStyle='#4f6a58';g.font='500 32px '+F;g.fillText(`「${place}」${pct}%　・　洗った日 ${S.days}日目`,540,1226);
+ g.fillStyle='#7fae8e';g.font='700 34px '+F;g.fillText('しずくのおうち時間',540,1296);
+ return new Promise(r=>c.toBlob(r,'image/png'));
+}
+async function shareCard(){
+ if(!cardBlob)return;
+ const file=new File([cardBlob],'shizuku-'+dkey().replace(/\//g,'-')+'.png',{type:'image/png'});
+ const text='今日の洗い物、おわり。しずくがおうちを整えてくれました #しずくのおうち時間';
+ try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text});return}}catch(e){if(e.name==='AbortError')return}
+ const a=document.createElement('a');a.href=URL.createObjectURL(file);a.download=file.name;document.body.appendChild(a);a.click();a.remove();
+}
+$('shareBtn').addEventListener('click',shareCard);
+$('closeBtn').addEventListener('click',()=>{const d=$('dlg');d.close?d.close():d.removeAttribute('open')});
+
+// ---- 画面をつけっぱなしにする（洗い物中に画面が消えないように）----
+let lock=null;
+async function keepAwake(){try{if('wakeLock' in navigator&&!lock&&document.visibilityState==='visible'){lock=await navigator.wakeLock.request('screen');lock.addEventListener('release',()=>lock=null)}}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&(micOn||manual))keepAwake()});
+
+// ---- ホーム画面に追加 ----
+let installEv=null;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEv=e;$('install').style.display='block'});
+$('install').addEventListener('click',async()=>{if(!installEv)return;installEv.prompt();await installEv.userChoice;installEv=null;$('install').style.display='none'});
+if('serviceWorker' in navigator&&location.protocol!=='file:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+
 $('micBtn').addEventListener('click',()=>{if(!micOn)startMic()});
 $('manBtn').addEventListener('click',toggleManual);
 cv.addEventListener('click',toggleManual);
